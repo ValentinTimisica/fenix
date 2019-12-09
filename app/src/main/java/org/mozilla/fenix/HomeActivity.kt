@@ -15,6 +15,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
@@ -41,7 +42,6 @@ import mozilla.components.support.utils.toSafeIntent
 import mozilla.components.support.webextensions.WebExtensionPopupFeature
 import org.mozilla.fenix.browser.UriOpenedObserver
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
-import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
 import org.mozilla.fenix.browser.browsingmode.DefaultBrowsingModeManager
 import org.mozilla.fenix.components.metrics.BreadcrumbsRecorder
 import org.mozilla.fenix.components.metrics.Event
@@ -75,7 +75,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
 
     private var webExtScope: CoroutineScope? = null
     lateinit var themeManager: ThemeManager
-    lateinit var browsingModeManager: BrowsingModeManager
 
     private var sessionObserver: SessionManager.Observer? = null
 
@@ -173,7 +172,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
 
         val intentProcessors = listOf(CrashReporterIntentProcessor()) + externalSourceIntentProcessors
         intentProcessors.any { it.process(intent, navHost.navController, this.intent) }
-        browsingModeManager.mode = getModeFromIntentOrLastKnown(intent)
+        DefaultBrowsingModeManager.mode = getModeFromIntentOrLastKnown(intent)
     }
 
     /**
@@ -237,7 +236,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
 
     private fun setupThemeAndBrowsingMode(mode: BrowsingMode) {
         settings().lastKnownMode = mode
-        browsingModeManager = createBrowsingModeManager(mode)
+        createBrowsingModeManager(mode)
         themeManager = createThemeManager()
         themeManager.setActivityTheme(this)
         themeManager.applyStatusBarTheme(this)
@@ -338,7 +337,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
         engine: SearchEngine?,
         forceSearch: Boolean
     ) {
-        val mode = browsingModeManager.mode
+        val mode = DefaultBrowsingModeManager.mode
 
         val loadUrlUseCase = if (newTab) {
             when (mode) {
@@ -369,17 +368,21 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
 
     fun updateThemeForSession(session: Session) {
         val sessionMode = BrowsingMode.fromBoolean(session.private)
-        browsingModeManager.mode = sessionMode
+        DefaultBrowsingModeManager.mode = sessionMode
     }
 
-    protected open fun createBrowsingModeManager(initialMode: BrowsingMode): BrowsingModeManager {
-        return DefaultBrowsingModeManager(initialMode) { newMode ->
-            themeManager.currentTheme = newMode
-        }
+    protected open fun createBrowsingModeManager(initialMode: BrowsingMode) {
+        DefaultBrowsingModeManager.initMode(initialMode)
+
+        DefaultBrowsingModeManager.currentMode.observe(
+            this,
+            Observer<BrowsingMode> { newMode ->
+                themeManager.currentTheme = newMode
+            })
     }
 
     protected open fun createThemeManager(): ThemeManager {
-        return DefaultThemeManager(browsingModeManager.mode, this)
+        return DefaultThemeManager(DefaultBrowsingModeManager.mode, this)
     }
 
     private fun openPopup(webExtensionState: WebExtensionState) {

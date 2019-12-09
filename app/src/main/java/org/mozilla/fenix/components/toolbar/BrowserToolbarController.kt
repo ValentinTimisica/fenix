@@ -33,7 +33,7 @@ import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.BrowserFragment
 import org.mozilla.fenix.browser.BrowserFragmentDirections
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
-import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
+import org.mozilla.fenix.browser.browsingmode.DefaultBrowsingModeManager
 import org.mozilla.fenix.browser.readermode.ReaderModeController
 import org.mozilla.fenix.collections.SaveCollectionStep
 import org.mozilla.fenix.components.FenixSnackbar
@@ -63,7 +63,6 @@ class DefaultBrowserToolbarController(
     private val activity: Activity,
     private val navController: NavController,
     private val readerModeController: ReaderModeController,
-    private val browsingModeManager: BrowsingModeManager,
     private val sessionManager: SessionManager,
     private val findInPageLauncher: () -> Unit,
     private val browserLayout: ViewGroup,
@@ -188,7 +187,7 @@ class DefaultBrowserToolbarController(
 
                 // Do not adjustBackground here or an exception gets thrown as we switch themes
                 navController.nav(R.id.browserFragment, directions)
-                browsingModeManager.mode = BrowsingMode.Normal
+                DefaultBrowsingModeManager.mode = BrowsingMode.Normal
             }
             ToolbarMenu.Item.NewPrivateTab -> {
                 val directions = BrowserFragmentDirections.actionBrowserFragmentToSearchFragment(
@@ -197,7 +196,7 @@ class DefaultBrowserToolbarController(
 
                 // Do not adjustBackground here or an exception gets thrown as we switch themes
                 navController.nav(R.id.browserFragment, directions)
-                browsingModeManager.mode = BrowsingMode.Private
+                DefaultBrowsingModeManager.mode = BrowsingMode.Private
             }
             ToolbarMenu.Item.FindInPage -> {
                 findInPageLauncher()

@@ -20,8 +20,10 @@ import mozilla.components.feature.top.sites.TopSite
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
+import org.mozilla.fenix.browser.BrowserNavigation
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
+import org.mozilla.fenix.browser.browsingmode.DefaultBrowsingModeManager
 import org.mozilla.fenix.collections.SaveCollectionStep
 import org.mozilla.fenix.components.TabCollectionStorage
 import org.mozilla.fenix.components.TopSiteStorage
@@ -204,7 +206,7 @@ class DefaultSessionControlController(
 
         if (session == null) {
             // We were unable to create a snapshot, so just load the tab instead
-            activity.openToBrowserAndLoad(
+            BrowserNavigation.openToBrowserAndLoad(
                 searchTermOrURL = tab.url,
                 newTab = true,
                 from = BrowserDirection.FromHome
@@ -214,7 +216,7 @@ class DefaultSessionControlController(
                 session,
                 true
             )
-            activity.openToBrowser(BrowserDirection.FromHome)
+            BrowserNavigation.openToBrowser(BrowserDirection.FromHome)
         }
 
         metrics.track(Event.CollectionTabRestored)
@@ -265,14 +267,12 @@ class DefaultSessionControlController(
 
     override fun handleOpenInPrivateTabClicked(topSite: TopSite) {
         metrics.track(Event.TopSiteOpenInPrivateTab)
-        with(activity) {
-            browsingModeManager.mode = BrowsingMode.Private
-            openToBrowserAndLoad(
-                searchTermOrURL = topSite.url,
-                newTab = true,
-                from = BrowserDirection.FromHome
-            )
-        }
+        DefaultBrowsingModeManager.mode = BrowsingMode.Private
+        BrowserNavigation.openToBrowserAndLoad(
+            searchTermOrURL = topSite.url,
+            newTab = true,
+            from = BrowserDirection.FromHome
+        )
     }
 
     override fun handlePauseMediaClicked() {
@@ -284,7 +284,7 @@ class DefaultSessionControlController(
     }
 
     override fun handlePrivateBrowsingLearnMoreClicked() {
-        activity.openToBrowserAndLoad(
+        BrowserNavigation.openToBrowserAndLoad(
             searchTermOrURL = SupportUtils.getGenericSumoURLForTopic
                 (SupportUtils.SumoTopic.PRIVATE_BROWSING_MYTHS),
             newTab = true,

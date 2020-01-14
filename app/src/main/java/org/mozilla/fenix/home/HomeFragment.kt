@@ -65,6 +65,7 @@ import mozilla.components.feature.top.sites.TopSite
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
+import org.mozilla.fenix.browser.BrowserNavigation
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.browser.browsingmode.DefaultBrowsingModeManager
 import org.mozilla.fenix.components.FenixSnackbar
@@ -588,7 +589,7 @@ class HomeFragment : Fragment() {
                 HomeMenu.Item.Help -> {
                     invokePendingDeleteJobs()
                     hideOnboardingIfNeeded()
-                    (activity as HomeActivity).openToBrowserAndLoad(
+                    BrowserNavigation.openToBrowserAndLoad(
                         searchTermOrURL = SupportUtils.getSumoURLForTopic(
                             context,
                             SupportUtils.SumoTopic.HELP
@@ -602,7 +603,7 @@ class HomeFragment : Fragment() {
                     hideOnboardingIfNeeded()
                     WhatsNew.userViewedWhatsNew(context)
                     context.metrics.track(Event.WhatsNewTapped)
-                    (activity as HomeActivity).openToBrowserAndLoad(
+                    BrowserNavigation.openToBrowserAndLoad(
                         searchTermOrURL = SupportUtils.getWhatsNewUrl(context),
                         newTab = true,
                         from = BrowserDirection.FromHome

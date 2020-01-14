@@ -25,8 +25,8 @@ import kotlinx.coroutines.withContext
 import mozilla.appservices.logins.ServerPassword
 import mozilla.components.lib.state.ext.consumeFrom
 import org.mozilla.fenix.BrowserDirection
-import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
+import org.mozilla.fenix.browser.BrowserNavigation
 import org.mozilla.fenix.components.StoreProvider
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.ext.components
@@ -94,7 +94,7 @@ class SavedLoginsFragment : Fragment() {
     }
 
     private fun openLearnMore() {
-        (activity as HomeActivity).openToBrowserAndLoad(
+        BrowserNavigation.openToBrowserAndLoad(
             searchTermOrURL = SupportUtils.getGenericSumoURLForTopic
                 (SupportUtils.SumoTopic.SYNC_SETUP),
             newTab = true,
